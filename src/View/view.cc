@@ -22,6 +22,8 @@ View::View(ng::Controller *controller, QWidget *parent)
   setFont();
   setToolTips();
   connect(timer_, &QTimer::timeout, this, &View::TimerTimeout);
+
+  ui->tabWidget->setCurrentIndex(0);
 }
 
 View::~View() {
@@ -164,8 +166,11 @@ void View::setFont() {
   ui->GenerateMaze->setFont(pixel);
   ui->TimerStartStopCave->setFont(pixel);
   ui->StepGenerationCave->setFont(pixel);
+
+  pixel.setPixelSize(13);
   ui->SolveStrucute->setFont(pixel);
   ui->GenerateAndSolveStructure->setFont(pixel);
+
   pixel.setPixelSize(10);
   QVector<QLabel *> labels{ui->label,
                            ui->label_11,
