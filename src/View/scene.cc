@@ -1,6 +1,7 @@
 #include "scene.h"
 
 #include <QMouseEvent>
+#include <qdebug.h>
 
 Scene::Scene(QWidget *parent)
     : QGraphicsView(parent), scene_(new QGraphicsScene(QRect(0, 0, 500, 500))) {
@@ -20,9 +21,15 @@ void Scene::DrawMaze() {
   double width = 500.0 / maze_.cols, height = 500.0 / maze_.rows;
 
   setBackgroundBrush(empty_color_);
-  QPen pen(wall_color_, 2);
+  
+  double cell_size = std::min(width, height);
+  double pen_width = std::max(0.5, cell_size / 10.0);
+
+  QPen pen(wall_color_, std::clamp(pen_width, 0.5, 4.0));
+
   scene_->addLine(0, 0, 500, 0, pen);
   scene_->addLine(0, 0, 0, 500, pen);
+  
   for (ng::size_type row = 0; row != maze_.rows; ++row) {
     for (ng::size_type col = 0; col != maze_.cols; ++col) {
       int x0 = width * col, y0 = height * row;
@@ -58,9 +65,12 @@ void Scene::DrawCave() {
 void Scene::DrawMazePath(const std::vector<ng::Point> &path) {
   if (!maze_.IsGood()) return;
   DrawMaze();
-  double width_aspect = 500.0 / maze_.cols, height_aspect = 500.0 / maze_.rows;
 
-  QPen pen(path_color_, 2);
+  double width_aspect = 500.0 / maze_.cols, height_aspect = 500.0 / maze_.rows;
+  double cell_size = std::min(width_aspect, height_aspect);
+  double pen_width = std::max(0.5, cell_size / 10.0);
+
+  QPen pen(path_color_, std::clamp(pen_width, 0.5, 4.0));
 
   if (path.empty()) return;
 
@@ -86,12 +96,26 @@ void Scene::DrawCavePath(const std::vector<ng::Point> &path) {
   DrawCave();
   double width_aspect = 500.0 / cave_.cols, height_aspect = 500.0 / cave_.rows;
 
-  QPen pen(path_color_, 1);
+  QPen pen(path_color_, 2);
 
-  for (auto [row, col] : path)
-    scene_->addRect(col * width_aspect + width_aspect / 5,
-                    row * height_aspect + height_aspect / 5, width_aspect * 0.6,
-                    height_aspect * 0.6, pen);
+
+  if (path.empty()) return;
+
+  auto [prev_row, prev_col] = path[0];
+  
+  for (std::size_t i = 1; i < path.size(); ++i) {
+    auto [row, col] = path[i];
+    
+    double x1 = prev_col * width_aspect + width_aspect / 2;
+    double y1 = prev_row * height_aspect + height_aspect / 2;
+    double x2 = col * width_aspect + width_aspect / 2;
+    double y2 = row * height_aspect + height_aspect / 2;
+    
+    scene_->addLine(x1, y1, x2, y2, pen);
+    
+    prev_row = row;
+    prev_col = col;
+  }
 }
 
 void Scene::ClearScene() noexcept { scene_->clear(); }
