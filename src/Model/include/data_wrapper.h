@@ -51,7 +51,7 @@ struct BasicWrapper<kMaze> final {
   size_type rows = 0, cols = 0;
 
   bool IsGood() const {
-    if (rows == 0 or rows > 75 or cols == 0 or cols > 75) return false;
+    if (rows == 0 or rows > 100 or cols == 0 or cols > 100) return false;
     if (rows * cols != right.size() or rows * cols != bottom.size())
       return false;
 
