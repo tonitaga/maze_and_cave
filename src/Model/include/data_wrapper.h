@@ -118,7 +118,7 @@ struct BasicWrapper<kCave> final {
   }
 
   size_type operator()(std::size_t row, std::size_t col) const {
-    if (row >= rows or col >= cols) return 1;
+    if (row >= rows or col >= cols) return 0;
     return data[row * cols + col];
   }
 };

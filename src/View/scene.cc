@@ -60,12 +60,25 @@ void Scene::DrawMazePath(const std::vector<ng::Point> &path) {
   DrawMaze();
   double width_aspect = 500.0 / maze_.cols, height_aspect = 500.0 / maze_.rows;
 
-  QPen pen(path_color_, 1);
+  QPen pen(path_color_, 2);
 
-  for (auto [row, col] : path)
-    scene_->addRect(col * width_aspect + width_aspect / 5,
-                    row * height_aspect + height_aspect / 5, width_aspect * 0.6,
-                    height_aspect * 0.6, pen);
+  if (path.empty()) return;
+
+  auto [prev_row, prev_col] = path[0];
+  
+  for (std::size_t i = 1; i < path.size(); ++i) {
+    auto [row, col] = path[i];
+    
+    double x1 = prev_col * width_aspect + width_aspect / 2;
+    double y1 = prev_row * height_aspect + height_aspect / 2;
+    double x2 = col * width_aspect + width_aspect / 2;
+    double y2 = row * height_aspect + height_aspect / 2;
+    
+    scene_->addLine(x1, y1, x2, y2, pen);
+    
+    prev_row = row;
+    prev_col = col;
+  }
 }
 
 void Scene::DrawCavePath(const std::vector<ng::Point> &path) {
